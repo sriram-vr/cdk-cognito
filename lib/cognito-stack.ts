@@ -3,24 +3,62 @@ import { Construct } from 'constructs';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import idpConfig, { ConfigEnvironmentType } from '../idps';
 import { IdpConfigType } from '../idps/types';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 
 export class CognitoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-          // ✅ Define the Lambda function
+    /* Add VPC to Cognito. Required for DB access. */
+    const vpc = ec2.Vpc.fromLookup(this, 'cognitoVPC', {
+      vpcId: process.env.VPC_ID!,
+    });
+
+    const subnet1 = ec2.Subnet.fromSubnetAttributes(this, 'Subnet1', {
+        subnetId: process.env.SUBNET1!,
+        availabilityZone: process.env.SUBNET1_AVAILABILITY_ZONE!,
+        routeTableId: process.env.ROUTE_TABLE1!
+      });
+    
+    const subnet2 = ec2.Subnet.fromSubnetAttributes(this, 'Subnet2', {
+      subnetId: process.env.SUBNET2!,
+      availabilityZone: process.env.SUBNET2_AVAILABILITY_ZONE!,
+      routeTableId: process.env.ROUTE_TABLE2!
+    });
+
+    // ✅ Define the Lambda function
     const preTokenLambda = new lambda.Function(this, 'PreTokenGenerationLambda', {
       runtime: lambda.Runtime.NODEJS_18_X,
+      
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/pre-token-generation')),
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
       description: 'Pre Token Generation Lambda for Cognito',
+      functionName: process.env.ENVIRONMENT! + '-cognito-pre-token-generation-lambda',
+      vpc,
+      vpcSubnets: {
+        subnets: [subnet1, subnet2]
+      },
+      allowPublicSubnet: true
     });
 
-    // ✅ User Pool
+    /* Add the IAM role to use VPC. */
+    preTokenLambda.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'ec2:CreateNetworkInterface',
+        'ec2:DescribeNetworkInterfaces',
+        'ec2:DeleteNetworkInterface'
+      ],
+      resources: ['*'],
+    }));
+
+    /* Update User Pool details. */
     const userPoolFriendlyName = process.env.USER_POOL_FRIENDLY_NAME!;
     const userPoolName = process.env.USER_POOL_NAME!;
     const userPool = new cognito.UserPool(this, userPoolFriendlyName, {
@@ -52,7 +90,7 @@ export class CognitoStack extends cdk.Stack {
       }
     });
 
-        //Create the SAML identity provider
+    //Create the SAML identity provider
     const getEnvironment = process.env.ENVIRONMENT!;
     let idps = (idpConfig as any)[getEnvironment];
     const supportedIdentityProviders = [];
@@ -71,6 +109,7 @@ export class CognitoStack extends cdk.Stack {
         },
         attributeMapping: idpData.attributes
       });
+
     // Ensure user pool depends on the provider
     samlProviderConstructs.push(samlProvider);
     supportedIdentityProviders.push(cognito.UserPoolClientIdentityProvider.custom(idpData.providerName));
