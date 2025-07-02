@@ -11,7 +11,7 @@ const handler = async function(event, context) {
   console.log('event');
   console.log(event);
   await initDatabaseOnColdStart;
-  const email = event?.request?.userAttributes?.email || 'sriram@pristinedata.ai';
+  const email = event?.request?.userAttributes?.email;
   if (!email) {
       throw Error('Email not found in request.')
   }
