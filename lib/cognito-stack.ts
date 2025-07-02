@@ -17,7 +17,6 @@ export class CognitoStack extends cdk.Stack {
     const vpc = ec2.Vpc.fromLookup(this, 'cognitoVPC', {
       vpcId: process.env.VPC_ID!,
     });
-
     const subnet1 = ec2.Subnet.fromSubnetAttributes(this, 'Subnet1', {
         subnetId: process.env.SUBNET1!,
         availabilityZone: process.env.SUBNET1_AVAILABILITY_ZONE!,
@@ -44,7 +43,10 @@ export class CognitoStack extends cdk.Stack {
       vpcSubnets: {
         subnets: [subnet1, subnet2]
       },
-      allowPublicSubnet: true
+      allowPublicSubnet: true,
+      environment: {
+        DB_SECRET_NAME: process.env.DB_SECRET_NAME!
+      }
     });
 
     /* Add the IAM role to use VPC. */
@@ -57,6 +59,9 @@ export class CognitoStack extends cdk.Stack {
       ],
       resources: ['*'],
     }));
+
+    const secret = secretsmanager.Secret.fromSecretNameV2(this, 'CognitoLambdaSecretManagerAccess', process.env.DB_SECRET_NAME!);
+    secret.grantRead(preTokenLambda);
 
     /* Update User Pool details. */
     const userPoolFriendlyName = process.env.USER_POOL_FRIENDLY_NAME!;
@@ -87,6 +92,12 @@ export class CognitoStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY, // optional: to auto-delete on stack destroy
       lambdaTriggers: {
         preTokenGeneration: preTokenLambda
+      },
+    });
+
+    userPool.addDomain('CognitoDomain', {
+      cognitoDomain: {
+        domainPrefix: process.env.USER_POOL_NAME! + 'ai',
       }
     });
 

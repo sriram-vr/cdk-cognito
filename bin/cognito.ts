@@ -8,7 +8,7 @@ dotenv.config();
 if (!process.env.USER_POOL_FRIENDLY_NAME || !process.env.USER_POOL_NAME || !process.env.CALLBACK_URL ||
     !process.env.ENVIRONMENT || !process.env.USER_POOL_CLIENT_NAME || !process.env.REGION || !process.env.VPC_ID ||
     !process.env.AWS_ACCOUNT || !process.env.SUBNET1 || !process.env.SUBNET2 || !process.env.ROUTE_TABLE1 || !process.env.ROUTE_TABLE2 ||
-    !process.env.SUBNET1_AVAILABILITY_ZONE || !process.env.SUBNET2_AVAILABILITY_ZONE) {
+    !process.env.SUBNET1_AVAILABILITY_ZONE || !process.env.SUBNET2_AVAILABILITY_ZONE || !process.env.DB_SECRET_NAME) {
     throw Error("Missing environment variables.");
 }
 

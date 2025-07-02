@@ -1,0 +1,20 @@
+{
+  "name": "sequelize",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.840.0",
+    "body-parser": "^1.17.1",
+    "dotenv": "^16.5.0",
+    "express": "^4.15.2",
+    "mysql2": "^3.14.1",
+    "sequelize": "^6.37.7"
+  }
+}
