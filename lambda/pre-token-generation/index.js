@@ -7,9 +7,8 @@ const { getAdGroup } = require('./controller/adgroup');
 
 const handler = async function(event, context) {
   try {
-  console.log('Inside handler function..');
-  console.log('event');
-  console.log(event);
+  console.log('Entering handler function..');
+  console.log('event:', JSON.stringify(event));
   await initDatabaseOnColdStart;
   const email = event?.request?.userAttributes?.email;
   if (!email) {
@@ -84,6 +83,7 @@ const handler = async function(event, context) {
   };
   } catch (err) {
     console.log(err);
+    throw err;
   }
   context.done(null, event);
 }

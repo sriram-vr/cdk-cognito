@@ -24,6 +24,7 @@ async function initializeSequelize() {
     } catch (err) {
         console.log('Error while initializing the database.')
         console.log(err);
+        throw err;
     }
 }
 
@@ -36,6 +37,7 @@ async function initDB() {
     } catch(error) {
         console.log(error);
         console.log('Error while initializing the database.');
+        throw error;
     }
 }
 
