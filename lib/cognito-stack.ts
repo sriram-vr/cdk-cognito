@@ -36,7 +36,7 @@ export class CognitoStack extends cdk.Stack {
       handler: 'index.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/pre-token-generation')),
       memorySize: 128,
-      timeout: cdk.Duration.seconds(10),
+      timeout: cdk.Duration.seconds(60),
       description: 'Pre Token Generation Lambda for Cognito',
       functionName: process.env.ENVIRONMENT! + '-cognito-pre-token-generation-lambda',
       vpc,
@@ -46,7 +46,7 @@ export class CognitoStack extends cdk.Stack {
       allowPublicSubnet: true,
       environment: {
         DB_SECRET_NAME: process.env.DB_SECRET_NAME!
-      }
+      },
     });
 
     /* Add the IAM role to use VPC. */
