@@ -6,6 +6,7 @@ const { initializeSchema } = require("./init");
 dotenv.config();
 
 var sequelize;
+var isDBInitialized = false;
 
 async function initializeSequelize() {
     if (sequelize) return sequelize;
@@ -30,17 +31,18 @@ async function initializeSequelize() {
 
 async function initDB() {
     try {
+        if (isDBInitialized) { return; }
         console.log("Proceeding to initialize the database.")
         await initializeSequelize();
         await sequelize.authenticate();
+        isDBInitialized = true;
         console.log("Database has been initialized.")
     } catch(error) {
         console.log(error);
         console.log('Error while initializing the database.');
+        isDBInitialized = false;
         throw error;
     }
 }
 
-const initDatabaseOnColdStart = initDB();
-
-module.exports = { initDB, initDatabaseOnColdStart }
+module.exports = { initDB }

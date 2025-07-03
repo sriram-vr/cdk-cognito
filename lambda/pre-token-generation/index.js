@@ -1,5 +1,5 @@
 
-const { initDatabaseOnColdStart } = require('./config/db');
+const { initDB } = require('./config/db');
 const { getUser, createUser } = require('./controller/user');
 const { getAccount } = require('./controller/account');
 const { fetchGroups } = require('./utils/helper');
@@ -9,7 +9,7 @@ const handler = async function(event, context) {
   try {
   console.log('Entering handler function..');
   console.log('event:', JSON.stringify(event));
-  await initDatabaseOnColdStart;
+  await initDB();
   const email = event?.request?.userAttributes?.email;
   if (!email) {
       throw Error('Email not found in request.')
