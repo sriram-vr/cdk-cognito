@@ -8,7 +8,6 @@ import idpConfig, { ConfigEnvironmentType } from '../idps';
 import { IdpConfigType } from '../idps/types';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-
 export class CognitoStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -29,6 +28,8 @@ export class CognitoStack extends cdk.Stack {
       routeTableId: process.env.ROUTE_TABLE2!
     });
 
+    const LAMBDA_NAME = process.env.ENVIRONMENT! + '-cognito-pre-token-generation-lambda';
+
     // ✅ Define the Lambda function
     const preTokenLambda = new lambda.Function(this, 'PreTokenGenerationLambda', {
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -38,7 +39,7 @@ export class CognitoStack extends cdk.Stack {
       memorySize: 128,
       timeout: cdk.Duration.seconds(60),
       description: 'Pre Token Generation Lambda for Cognito',
-      functionName: process.env.ENVIRONMENT! + '-cognito-pre-token-generation-lambda',
+      functionName: LAMBDA_NAME,
       vpc,
       vpcSubnets: {
         subnets: [subnet1, subnet2]
@@ -99,6 +100,13 @@ export class CognitoStack extends cdk.Stack {
       cognitoDomain: {
         domainPrefix: process.env.USER_POOL_NAME! + 'ai',
       }
+    });
+
+    // use addOverride to inject LambdaVersion V2_0
+    const cfn = userPool.node.defaultChild as cognito.CfnUserPool;
+    cfn.addOverride('Properties.LambdaConfig.PreTokenGenerationConfig', {
+      LambdaArn: preTokenLambda.functionArn,
+      LambdaVersion: 'V2_0',
     });
 
     //Create the SAML identity provider

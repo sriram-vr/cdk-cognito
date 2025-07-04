@@ -10,8 +10,8 @@ const idpConfig: ConfigEnvironmentType = {
     sbx: [
         {
             identifierName: 'AzureSbxSamlProvider',
-            providerName: 'azure-sbx-idp',
-            metadataUrl: 'https://login.microsoftonline.com/099802f6-21a8-4a5a-9c40-a0244b58a711/federationmetadata/2007-06/federationmetadata.xml?appid=3ebb2efc-af8e-4717-b58d-63b96edb7e18',
+            providerName: 'azure-sbx-idp-test',
+            metadataUrl: 'https://login.microsoftonline.com/b423814a-f53b-44da-9058-607a26e1e8ae/federationmetadata/2007-06/federationmetadata.xml?appid=786af84c-341c-4563-a612-90243ec03520',
             attributes: {
                 email: 'emails',
                 family_name: 'name.familyName',

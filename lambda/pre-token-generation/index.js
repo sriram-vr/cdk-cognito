@@ -12,16 +12,16 @@ const handler = async function(event, context) {
   await initDB();
   const email = event?.request?.userAttributes?.email;
   if (!email) {
-      throw Error('Email not found in request.')
+      throw Error('Email not found in request!')
   }
   let user = await getUser(email);
   if (!user || !user.user_email) {
       /* Code for cognito. */
-      if (!event.request?.userAttributes?.["custom:pdaiDomain"]) {
+      if (!event.request?.userAttributes?.["custom:attribute1"]) {
           throw Error("No account associated for the user in IDP.");
       }
-      /* Check if we really need to use custom:pdaiDomain or any best solution. */
-      const account = await getAccount(event.request.userAttributes["custom:pdaiDomain"]);
+      /* Check if we really need to use custom:attribute1 or any best solution. */
+      const account = await getAccount(event.request.userAttributes["custom:attribute1"]);
       if (!account?.account_id) {
           throw Error("No account associated for the domain.");
       }
@@ -76,7 +76,7 @@ const handler = async function(event, context) {
     "claimsAndScopeOverrideDetails": {
       "accessTokenGeneration": {
         "claimsToAddOrOverride": {
-          "custom:profileAndRoleInformation": {...profileInformation}
+          "profileAndRoleInformation": {...profileInformation}
         }
       }
     }
