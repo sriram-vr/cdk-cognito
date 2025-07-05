@@ -4,7 +4,7 @@ import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as path from 'path';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import idpConfig, { ConfigEnvironmentType } from '../idps';
+import idpConfig from '../idps';
 import { IdpConfigType } from '../idps/types';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
@@ -158,8 +158,8 @@ export class CognitoStack extends cdk.Stack {
           cognito.OAuthScope.PHONE,
         ],
       },
-      accessTokenValidity: cdk.Duration.minutes(60), // default is 60
-      idTokenValidity: cdk.Duration.minutes(60),
+      accessTokenValidity: cdk.Duration.minutes(15), // default is 60
+      idTokenValidity: cdk.Duration.minutes(15),
       refreshTokenValidity: cdk.Duration.minutes(720),
       preventUserExistenceErrors: true,
       enableTokenRevocation: true,
